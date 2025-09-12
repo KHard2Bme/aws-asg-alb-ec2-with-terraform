@@ -1,5 +1,6 @@
-🌍 Skybound Travel Auto Scaling Infrastructure with Terraform
+#🌍 Skybound Travel Auto Scaling Infrastructure with Terraform
 This project provisions a highly available, fault-tolerant AWS infrastructure using Terraform. It was designed for Skybound Travel LLC to handle holiday traffic surges by automatically scaling EC2 instances across multiple subnets in the default VPC.
+
 🚀 Features
 •	Auto Scaling Group (ASG) across two subnets (172.31.16.0/20 and 172.31.64.0/20) for high availability
 •	Security Group that allows inbound HTTP (port 80) from the internet
