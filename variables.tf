@@ -28,7 +28,3 @@ variable "asg_max_size" {
   default     = 5
 }
 
-variable "s3_bucket_name" {
-  description = "Name of the S3 bucket for remote backend"
-  type        = string
-}

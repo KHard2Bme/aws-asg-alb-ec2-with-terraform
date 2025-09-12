@@ -17,12 +17,6 @@ output "asg_instance_ids" {
   value       = data.aws_instances.asg_instances.ids
 }
 
-# Subnet IDs where the ASG instances are running
-output "asg_instance_subnets" {
-  description = "Subnet IDs of the Auto Scaling Group instances"
-  value       = data.aws_instances.asg_instances.subnet_ids
-}
-
 # S3 bucket name for Terraform remote backend
 output "s3_bucket_name" {
   description = "S3 bucket created for Terraform remote backend"

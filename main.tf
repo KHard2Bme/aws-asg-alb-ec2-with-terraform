@@ -119,10 +119,14 @@ resource "aws_autoscaling_group" "web_asg" {
   }
 }
 
+# Random suffix for uniqueness
+resource "random_id" "suffix"  {
+  byte_length = 4
+}
 
 # S3 Bucket for Terraform Remote Backend
 resource "aws_s3_bucket" "tf_state" {
-  bucket = var.s3_bucket_name
+  bucket = "skybound-tfstate-${random_id.suffix.hex}"
 
   tags = {
     Name = "${var.project_name}-tfstate"
@@ -136,6 +140,7 @@ resource "aws_s3_bucket_versioning" "tf_state" {
     status = "Enabled"
   }
 }
+
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "tf_state" {
   bucket = aws_s3_bucket.tf_state.id
