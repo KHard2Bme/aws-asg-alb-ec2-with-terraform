@@ -40,24 +40,24 @@ This project provisions a **highly available, fault-tolerant AWS infrastructure*
 
 ### 1. Clone the repository  
 ```bash
-git clone https://github.com/<your-username>/<your-repo>.git
-cd <your-repo>
+git clone https://github.com/KHard2Bme/aws-asg-alb-ec2-with-terraform.git
+cd aws-asg-alb-ec2-with-terraform
 ```
 
 ### 2. Initialize Terraform  
 Update `providers.tf` with your **S3 backend details** or pass them in via CLI:  
 ```bash
-terraform init   -backend-config="bucket=<your-s3-bucket>"   -backend-config="key=terraform/state.tfstate"   -backend-config="region=us-east-1"   -backend-config="encrypt=true"
+terraform init   -backend-config="bucket=skybound-tfstate-053422dc"   -backend-config="key=terraform/state.tfstate"   -backend-config="region=us-east-1"   -backend-config="encrypt=true"
 ```
 
 ### 3. Plan the deployment  
 ```bash
-terraform plan -var="s3_bucket_name=<your-s3-bucket>"
+terraform plan -var="s3_bucket_name=skybound-tfstate-053422dc"
 ```
 
 ### 4. Apply the configuration  
 ```bash
-terraform apply -auto-approve -var="s3_bucket_name=<your-s3-bucket>"
+terraform apply -auto-approve -var="s3_bucket_name=skybound-tfstate-053422dc"
 ```
 
 ---
@@ -86,7 +86,7 @@ terraform apply -auto-approve -var="s3_bucket_name=<your-s3-bucket>"
 
 To avoid ongoing AWS charges, destroy the infrastructure when done:  
 ```bash
-terraform destroy -auto-approve -var="s3_bucket_name=<your-s3-bucket>"
+terraform destroy -auto-approve -var="s3_bucket_name=skybound-tfstate-053422dc"
 ```
 
 ---
@@ -94,9 +94,6 @@ terraform destroy -auto-approve -var="s3_bucket_name=<your-s3-bucket>"
 ## 📌 Next Steps  
 
 - Add an **Application Load Balancer (ALB)** for a single DNS endpoint  
-- Enable **CloudWatch alarms** to trigger scaling events based on CPU utilization  
-- Add **TLS/SSL certificates** with AWS ACM for HTTPS support  
-- Automate deployment via **CI/CD pipeline**  
 
 ---
 
