@@ -17,7 +17,7 @@ This project provisions a **highly available, fault-tolerant AWS infrastructure*
 ## 🏗️ Project Structure  
 
 ```
-.
+aws-asg-alb-ec2-with-terraform/
 ├── main.tf          # Core infrastructure: VPC, SG, Launch Template, ASG, S3 backend
 ├── variables.tf     # Input variables for flexibility
 ├── providers.tf     # Providers and remote backend config
