@@ -16,6 +16,11 @@ variable "instance_type" {
   default     = "t2.micro"
 }
 
+variable "allowed_ssh_ip" {
+  description = "Your public IP for SSH access"
+  default     = "0.0.0.0/0"
+}
+
 variable "asg_min_size" {
   description = "Minimum number of instances in the ASG"
   type        = number
