@@ -1,103 +1,107 @@
-# 🌍 Skybound Travel Auto Scaling Infrastructure with Terraform  
+# 🚀 Skybound Travel Agency AWS Auto Scaling + ALB with Terraform
 
-This project provisions a **highly available, fault-tolerant AWS infrastructure** using **Terraform**. It was designed for **Skybound Travel LLC** to handle holiday traffic surges by automatically scaling EC2 instances across multiple subnets in the default VPC.  
-
-## 🚀 Features  
-
-- **Auto Scaling Group (ASG)** across **two subnets** (`172.31.16.0/20` and `172.31.64.0/20`) for high availability  
-- **Security Group** that allows inbound HTTP (port 80) from the internet  
-- **Apache Web Server** automatically installed via `user_data.sh`  
-- **ASG capacity:** minimum 2 instances, maximum 5 instances  
-- **Self-healing infrastructure:** terminate one instance, another spins up automatically  
-- **S3 bucket** for storing Terraform remote backend (versioned, encrypted, rollback-ready)  
-- **Outputs:** public IPs and subnet IDs of ASG instances, plus S3 bucket name  
+This project provisions highly available, fault-tolerant infrastructure on AWS for **Skybound Travel Agency LLC** using **Terraform**.  
+It leverages an **Auto Scaling Group (ASG)** of EC2 instances running Apache, fronted by an **Application Load Balancer (ALB)** for traffic distribution.  
+The setup ensures scalability during peak holiday traffic and cost efficiency during low usage.  
 
 ---
 
-## 🏗️ Project Structure  
+## 📐 Architecture Overview
+- **Default VPC** with two existing subnets:
+  - `172.31.16.0/20`
+  - `172.31.64.0/20`
+- **Security Groups**:
+  - ALB SG → allows inbound HTTP (80) from the internet.
+  - EC2 SG → allows HTTP traffic **only from ALB**, plus restricted SSH.
+- **Application Load Balancer (ALB)**:
+  - Distributes inbound traffic across instances in two subnets.
+  - Provides a single DNS entry for external access.
+- **Auto Scaling Group (ASG)**:
+  - Min 2, Max 5 EC2 instances.
+  - Launch Template bootstraps Apache using `user_data.sh`.
+  - Automatically replaces unhealthy instances.
+- **S3 Remote Backend**:
+  - Stores Terraform state with versioning and encryption.
 
-```
+---
+
+## 🛠️ Files in This Project
 aws-asg-alb-ec2-with-terraform/
-├── main.tf          # Core infrastructure: VPC, SG, Launch Template, ASG, S3 backend
-├── variables.tf     # Input variables for flexibility
-├── providers.tf     # Providers and remote backend config
-├── outputs.tf       # Outputs (IPs, subnets, bucket name)
-├── user_data.sh     # Script to install and run Apache
-└── README.md        # Project documentation
-```
+- `main.tf` → Defines VPC resources, Security Groups, ALB, ASG, and S3 backend bucket.
+- `variables.tf` → Input variables (project name, instance type, ASG size, allowed SSH IP, etc.).
+- `providers.tf` → AWS provider and backend configuration.
+- `outputs.tf` → Exports ALB DNS name and other useful outputs.
+- `user_data.sh` → Bootstraps Apache webserver on EC2 instances.
 
 ---
 
-## ⚙️ Prerequisites  
+## ⚙️ Deployment Steps
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/KHard2Bme/aws-asg-alb-ec2-with-terraform.git
 
-- [Terraform](https://developer.hashicorp.com/terraform/downloads) >= 1.5  
-- AWS CLI configured with credentials (`aws configure`)  
-- An AWS account with a default VPC (CIDR `172.31.0.0/16`)  
+   cd aws-asg-alb-ec2-with-terraform
+   ```
+
+2. **Initialize Terraform**:
+   ```bash
+   terraform init
+   ```
+
+3. **Validate configuration**:
+   ```bash
+   terraform validate
+   ```
+
+4. **Preview resources**:
+   ```bash
+   terraform plan
+   ```
+
+5. **Apply infrastructure**:
+   ```bash
+   terraform apply -auto-approve
+   ```
 
 ---
 
-## 📦 Usage  
+## 🌐 Accessing the Application
+After apply completes, Terraform will output the **ALB DNS name**:  
 
-### 1. Clone the repository  
 ```bash
-git clone https://github.com/KHard2Bme/aws-asg-alb-ec2-with-terraform.git
-cd aws-asg-alb-ec2-with-terraform
+Outputs:
+
+alb_dns_name = "skybound-travel-alb-123456789.us-east-1.elb.amazonaws.com"
 ```
 
-### 2. Initialize Terraform  
-Update `providers.tf` with your **S3 backend details** or pass them in via CLI:  
-```bash
-terraform init   -backend-config="bucket=skybound-tfstate-053422dc"   -backend-config="key=terraform/state.tfstate"   -backend-config="region=us-east-1"   -backend-config="encrypt=true"
+Open this DNS in your browser:  
+
+```
+http://skybound-travel-alb-123456789.us-east-1.elb.amazonaws.com
 ```
 
-### 3. Plan the deployment  
-```bash
-terraform plan -var="s3_bucket_name=skybound-tfstate-053422dc"
-```
+You should see the Apache welcome page or the custom message from your `user_data.sh` script.
 
-### 4. Apply the configuration  
+---
+
+## 🧹 Cleanup
+When finished, destroy all provisioned AWS resources to avoid charges:  
 ```bash
-terraform apply -auto-approve -var="s3_bucket_name=skybound-tfstate-053422dc"
+terraform destroy -auto-approve
 ```
 
 ---
 
-## 🔍 Verification  
-
-- Run `terraform output` to view:  
-  - Public IPs of EC2 instances  
-  - Subnets where they’re running  
-  - S3 bucket name for remote backend  
-
-- Open one of the **public IPs in your browser**:  
-  ```
-  http://<PUBLIC-IP>
-  ```
-  You should see:  
-  ```
-  Welcome to Skybound Travel! Served from <hostname>
-  ```
-
-- Manually terminate one EC2 instance from the AWS Console — the Auto Scaling Group will automatically launch a new one to maintain the minimum capacity of 2.  
+## ✅ Key Features
+- 🌍 Highly available across two subnets.  
+- ⚖️ Auto Scaling with min=2, max=5 instances.  
+- 🔒 Security: EC2 accepts traffic **only from ALB**.  
+- 🔄 ALB distributes load automatically.  
+- 📦 S3 remote backend with versioning and encryption.  
 
 ---
 
-## 🛠️ Cleanup  
-
-To avoid ongoing AWS charges, destroy the infrastructure when done:  
-```bash
-terraform destroy -auto-approve -var="s3_bucket_name=skybound-tfstate-053422dc"
-```
-
----
-
-## 📌 Next Steps  
-
-- Add an **Application Load Balancer (ALB)** for a single DNS endpoint  
-
----
-
-## 📖 License  
-
-This project is licensed under the MIT License.  
-
+## 📌 Notes
+- Ensure your AWS credentials are configured (`aws configure`) before running Terraform.  
+- Update `variables.tf` with your allowed SSH IP address for secure access.  
+- Default VPC must exist in your target region (project assumes AWS provides it).  
